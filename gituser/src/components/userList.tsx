@@ -1,29 +1,12 @@
-import React, { FC, useEffect, useState } from "react";
-import { Col, Container, Row, Image, Navbar,Spinner } from "react-bootstrap";
+import React, { FC, Suspense } from "react";
+import { Container, Navbar, Spinner } from "react-bootstrap";
+import { createResource } from "../githubApi";
+import Card from "../commonComponent/userListCard";
+import { gitUserType } from "../utils";
+
+const resource: { api: { read(): gitUserType[] } } = createResource();
 
 const UserList: FC = (): JSX.Element => {
-  //state
-  const [state, setState] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  //getUserData
-  const getData = (): any => {
-    setLoading(true);
-    let url = "https://api.github.com/users?since=135";
-    fetch(url)
-      .then((res) => {
-        return res.json();
-      })
-      .then((result) => {
-        setState(result);
-        setLoading(false);
-      });
-  };
-
-  //mounting
-  useEffect(():void => {
-    getData();
-  }, []);
-
   return (
     <div>
       <Navbar bg="dark" sticky="top">
@@ -39,47 +22,16 @@ const UserList: FC = (): JSX.Element => {
         </Navbar.Brand>
       </Navbar>
       <Container fluid>
-        {state &&
-          state.slice(0, 10).map((item, index) => {
-            return (
-              <div key={index} style={{ margin: 10 }}>
-                <Row
-                  style={{
-                    backgroundColor: "#E8EAF6",
-                    borderRadius: 10,
-                    padding: 10,
-                  }}
-                >
-                  <Col
-                    md={4}
-                    className="d-flex justify-content-center align-items-center"
-                  >
-                    <Image
-                      style={{ width: 100, height: 100, borderRadius: 100 / 2 }}
-                      src={item.avatar_url}
-                    />
-                  </Col>
-                  <Col
-                    md={8}
-                    className="d-flex justify-content-start align-items-center"
-                  >
-                    <div>
-                      <h4>{item.login}</h4>
-                      <h4 className="text-success">{item.url}</h4>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-            );
-          })}
+        <Suspense
+          fallback={
+            <Spinner animation="border" role="status">
+              <span className="sr-only">Loading...</span>
+            </Spinner>
+          }
+        >
+          <Card gitUserData={resource} />
+        </Suspense>
       </Container>
-      { loading &&
-      <div className='d-flex align-items-center justify-content-center'>
-        <Spinner animation="border" role="status">
-          <span className="sr-only">Loading...</span>
-        </Spinner>
-      </div>
-      }
     </div>
   );
 };

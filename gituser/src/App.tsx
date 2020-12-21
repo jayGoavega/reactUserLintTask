@@ -1,9 +1,10 @@
-import React from 'react'
-import UserList from './components/userList'
+import React from "react";
+import UserList from "./components/userList";
+
 function App() {
   return (
-    <UserList/>
-  )
+      <UserList />
+  );
 }
 
-export default App
+export default App;
